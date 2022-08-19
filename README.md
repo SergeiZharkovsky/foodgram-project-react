@@ -8,15 +8,7 @@
 
 #### Клонируйте репозиторий:
 ```
-git clone
-```
-#### Выполните команды:
-```
-python -m venv env
-source env/bin/activate (env/Scripts/activate)
-cd backend/
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+git clone git@github.com:SergeiZharkovsky/foodgram-project-react.git
 ```
 #### Создайте файл .env с переменными окружения для работы с базой данных:
 ```
@@ -28,13 +20,15 @@ POSTGRES_PASSWORD=postgres # пароль для подключения к БД 
 DB_HOST=db # название сервиса (контейнера)
 DB_PORT=5432 # порт для подключения к БД
 ```
-#### Запустите проект:
+#### Сборка и запуск:
 ```
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py load_tags
-python manage.py load_ingredients
-python manage.py runserver
+cd foodgram-project-react/infra/
+docker-compose up -d --build
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py collectstatic --no-input
+docker-compose exec backend python manage.py createsuperuser
+docker-compose exec backend python manage.py load_tags
+docker-compose exec backend python manage.py load_ingredients
 ```
 ### Автор
 Сергей Жарковский

@@ -1,24 +1,17 @@
 from django.contrib.auth import get_user_model
-from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingCart, Tag)
+
+from recipes.models import (
+    FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag,
+)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from users.models import Follow
+from api.mixins import GetIsSubscribedMixin, GetIngredientsMixin
 
 User = get_user_model()
-
-
-class GetIsSubscribedMixin:
-    """Отображение подписки на пользователя"""
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.follower.filter(author=obj.id).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -61,16 +54,6 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GetIngredientsMixin:
-    """Рецепты, получение ингредиентов"""
-
-    def get_ingredients(self, obj):
-        return obj.ingredients.values(
-            'id', 'name', 'measurement_unit',
-            amount=F('ingredients_amount__amount')
-        )
-
-
 class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
     """Чтение рецептов"""
     tags = TagSerializer(many=True)
@@ -81,7 +64,13 @@ class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = (
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+        )
 
 
 class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
@@ -95,7 +84,11 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        fields = (
+            'tags',
+            'ingredients',
+            'image',
+        )
         read_only_fields = ('author',)
 
     def validate(self, data):

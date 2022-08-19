@@ -1,35 +1,32 @@
 from http import HTTPStatus
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import BooleanField, Exists, OuterRef, Sum, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingCart, Tag)
-from rest_framework import mixins, viewsets
+
+from recipes.models import (
+    FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag,
+)
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Follow
-
 from .filters import IngredientSearchFilter, RecipeFilter
-from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import (CheckFavoriteSerializer, CheckShoppingCartSerializer,
-                          CheckSubscribeSerializer, FollowSerializer,
-                          IngredientSerializer, RecipeAddingSerializer,
-                          RecipeReadSerializer, RecipeWriteSerializer,
-                          TagSerializer)
+from .permissions import IsAdminAuthorOrReadOnly
+from .serializers import (
+    CheckFavoriteSerializer, CheckShoppingCartSerializer,
+    CheckSubscribeSerializer, FollowSerializer, IngredientSerializer,
+    RecipeAddingSerializer, RecipeReadSerializer, RecipeWriteSerializer,
+    TagSerializer,
+)
+from api.mixins import ListRetrieveViewSet
 
 User = get_user_model()
-FILENAME = 'shopping_cart.txt'
-SHOPPIHG_LIST = 'Мой список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
-
-
-class ListRetrieveViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                          mixins.RetrieveModelMixin):
-    permission_classes = (IsAdminOrReadOnly, )
 
 
 class TagViewSet(ListRetrieveViewSet):
@@ -67,11 +64,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 )
             )
-        else:
-            return Recipe.objects.annotate(
-                is_favorited=Value(False, output_field=BooleanField()),
-                is_in_shopping_cart=Value(False, output_field=BooleanField())
-            )
+        return Recipe.objects.annotate(
+            is_favorited=Value(False, output_field=BooleanField()),
+            is_in_shopping_cart=Value(False, output_field=BooleanField())
+        )
 
     @transaction.atomic()
     def perform_create(self, serializer):
@@ -155,14 +151,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(total=Sum('amount'))
-        result = SHOPPIHG_LIST
+        result = settings.SHOPPIHG_LIST
         result += '\n'.join([
             f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
             f'{ingredient["ingredient__measurement_unit"]}'
             for ingredient in ingredients
         ])
         response = HttpResponse(result, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={FILENAME}'
+        content_disposition = f'attachment; filename={settings.FILENAME}'
+        response['Content-Disposition'] = content_disposition
         return response
 
 

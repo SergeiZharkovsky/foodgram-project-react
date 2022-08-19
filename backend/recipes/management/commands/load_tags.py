@@ -1,9 +1,9 @@
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandError
+# isort ругается на неожиданную пустую строку в импорте
 from recipes.models import Tag
 
-ERROR_MESSAGE_1 = 'Значение не определено!'
-ERROR_MESSAGE_2 = 'Что-то пошло не так!'
-ERROR_MESSAGE_3 = 'Все тэги загружены.'
+SOMETHING_WENT_ERROR_MESSAGE = 'Что-то пошло не так!'
+TAGS_LOADED_MESSAGE = 'Все тэги загружены!'
 
 
 class Command(BaseCommand):
@@ -20,9 +20,6 @@ class Command(BaseCommand):
         ]
         try:
             Tag.objects.bulk_create(Tag(**tag) for tag in data)
-        except ValueError:
-            print(ERROR_MESSAGE_1)
         except Exception:
-            print(ERROR_MESSAGE_2)
-        else:
-            print(ERROR_MESSAGE_3)
+            raise CommandError(SOMETHING_WENT_ERROR_MESSAGE)
+        self.stdout.write(self.style.SUCCESS(TAGS_LOADED_MESSAGE))

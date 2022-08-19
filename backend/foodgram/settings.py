@@ -127,3 +127,7 @@ DJOSER = {
     },
     'HIDE_USERS': False
 }
+
+FILENAME = 'shopping_cart.txt'
+
+SHOPPIHG_LIST = 'Мой список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
