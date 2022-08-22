@@ -1,6 +1,6 @@
 # Проект Foodgram
 
-![Foodgram project workflow Status](https://github.com/SergeiZharkovsky/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?branch=main&event=push)
+![Foodgram project workflow Status](https://github.com/SergeiZharkovsky/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/SergeiZharkovsky/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
 ```
 Адрес сайта: http://84.252.141.85/recipes/
 ```
