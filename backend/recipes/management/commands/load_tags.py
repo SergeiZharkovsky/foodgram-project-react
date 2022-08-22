@@ -1,5 +1,5 @@
 from django.core.management import BaseCommand, CommandError
-# isort ругается на неожиданную пустую строку в импорте
+
 from recipes.models import Tag
 
 SOMETHING_WENT_ERROR_MESSAGE = 'Что-то пошло не так!'

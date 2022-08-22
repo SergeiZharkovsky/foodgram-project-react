@@ -1,7 +1,7 @@
 from csv import DictReader
 
 from django.core.management import BaseCommand, CommandError
-# isort ругается на неожиданную пустую строку в импорте
+
 from recipes.models import Ingredient
 
 SOMETHING_WENT_ERROR_MESSAGE = 'Что-то пошло не так!'
