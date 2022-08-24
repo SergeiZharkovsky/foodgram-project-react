@@ -46,4 +46,4 @@ docker-compose exec backend python manage.py load_tags
 docker-compose exec backend python manage.py load_ingredients
 ```
 ### Автор
-Сергей Жарковский
+Жарковский Сергей
