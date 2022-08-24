@@ -3,8 +3,9 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingCart, Tag)
+from recipes.models import (
+    FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag,
+)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from users.models import Follow
@@ -13,7 +14,7 @@ User = get_user_model()
 
 
 class GetIsSubscribedMixin:
-    """Миксина отображения подписки на пользователя"""
+    """Отображение подписки на пользователя"""
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -22,7 +23,7 @@ class GetIsSubscribedMixin:
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    """Сериализатор создания пользователя"""
+    """Создание пользователя"""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(
@@ -37,7 +38,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserListSerializer(GetIsSubscribedMixin, UserSerializer):
-    """Сериализатор просмотра пользователя"""
+    """Просмотр пользователя"""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -62,7 +63,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class GetIngredientsMixin:
-    """Миксина для рецептов, получение ингредиентов"""
+    """Рецепты, получение ингредиентов"""
 
     def get_ingredients(self, obj):
         return obj.ingredients.values(
@@ -72,7 +73,7 @@ class GetIngredientsMixin:
 
 
 class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
-    """Сериализатор для чтения рецепта"""
+    """Чтение рецептов"""
     tags = TagSerializer(many=True)
     author = CustomUserListSerializer()
     ingredients = serializers.SerializerMethodField()
@@ -96,7 +97,7 @@ class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
-    """Сериализатор для записи рецепта"""
+    """Запись рецептов"""
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all()
@@ -182,7 +183,7 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
 
 class RecipeAddingSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления рецепта в подписки и корзины"""
+    """Добавление рецепта в подписки"""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -190,7 +191,7 @@ class RecipeAddingSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
-    """Сериализатор подписки"""
+    """Подписка"""
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
     username = serializers.ReadOnlyField(source='author.username')
@@ -218,7 +219,7 @@ class FollowSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
 
 
 class CheckSubscribeSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки подписки"""
+    """Проверка подписки"""
     class Meta:
         model = Follow
         fields = ('user', 'author')
@@ -250,7 +251,7 @@ class CheckSubscribeSerializer(serializers.ModelSerializer):
 
 
 class CheckFavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки избранного"""
+    """Проверка избранного"""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
@@ -279,7 +280,7 @@ class CheckFavoriteSerializer(serializers.ModelSerializer):
 
 
 class CheckShoppingCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки корзины"""
+    """Проверка корзины"""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )

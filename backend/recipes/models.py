@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    """Модель спаска тегов"""
+    """Модель списка тегов"""
     name = models.CharField(
         verbose_name='Наименование тега',
         max_length=50,

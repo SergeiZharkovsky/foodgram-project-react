@@ -1,13 +1,16 @@
 from http import HTTPStatus
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import BooleanField, Exists, OuterRef, Sum, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingCart, Tag)
+
+from recipes.models import (
+    FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe, ShoppingCart, Tag,
+)
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -16,15 +19,14 @@ from users.models import Follow
 
 from .filters import IngredientSearchFilter, RecipeFilter
 from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import (CheckFavoriteSerializer, CheckShoppingCartSerializer,
-                          CheckSubscribeSerializer, FollowSerializer,
-                          IngredientSerializer, RecipeAddingSerializer,
-                          RecipeReadSerializer, RecipeWriteSerializer,
-                          TagSerializer)
+from .serializers import (
+    CheckFavoriteSerializer, CheckShoppingCartSerializer,
+    CheckSubscribeSerializer, FollowSerializer, IngredientSerializer,
+    RecipeAddingSerializer, RecipeReadSerializer, RecipeWriteSerializer,
+    TagSerializer,
+)
 
 User = get_user_model()
-FILENAME = 'shopping_cart.txt'
-HEADER_FILE_CART = 'Мой список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
 
 
 class ListRetrieveViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
@@ -33,14 +35,14 @@ class ListRetrieveViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
 
 
 class TagViewSet(ListRetrieveViewSet):
-    """Вьюсет список тегов"""
+    """Список тегов"""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(ListRetrieveViewSet):
-    """Вьюсет список ингредиентов"""
+    """Список ингредиентов"""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -48,7 +50,7 @@ class IngredientViewSet(ListRetrieveViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Вьюсет для рецепта"""
+    """Рецепты"""
     permission_classes = (IsAdminAuthorOrReadOnly,)
     filter_class = RecipeFilter
 
@@ -155,19 +157,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(total=Sum('amount'))
-        result = HEADER_FILE_CART
+        result = settings.SHOPPIHG_LIST
         result += '\n'.join([
             f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
             f'{ingredient["ingredient__measurement_unit"]}'
             for ingredient in ingredients
         ])
         response = HttpResponse(result, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={FILENAME}'
+        content_disposition = f'attachment; filename={settings.FILENAME}'
+        response['Content-Disposition'] = content_disposition
         return response
 
 
 class FollowViewSet(UserViewSet):
-    """Вьюсет подписки"""
+    """Подписка"""
     @action(
         methods=['post'],
         detail=True,
