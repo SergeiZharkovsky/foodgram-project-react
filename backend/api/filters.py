@@ -2,11 +2,11 @@ from django.core.exceptions import ValidationError
 from django_filters.fields import MultipleChoiceField
 from django_filters.rest_framework import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
-
 from recipes.models import Ingredient, Recipe
 
 
-class TagsMultipleChoiceField(MultipleChoiceField):
+class TagsMultipleChoiceField(
+        MultipleChoiceField):
     def validate(self, value):
         if self.required and not value:
             raise ValidationError(

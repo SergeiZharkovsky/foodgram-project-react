@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.urls import reverse
 
 User = get_user_model()
 
 
 class Tag(models.Model):
+    """Модель спаска тегов"""
     name = models.CharField(
         verbose_name='Наименование тега',
         max_length=50,
@@ -28,10 +30,11 @@ class Tag(models.Model):
         ordering = ('id',)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Ingredient(models.Model):
+    """Модель ингредиента"""
     name = models.CharField(
         verbose_name='Наименование ингредиента',
         max_length=150
@@ -51,6 +54,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    """Модель рецепта"""
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
@@ -73,18 +77,16 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Изображение',
-        blank=True,
-        null=True,
-        upload_to='image_recipes/',
+        upload_to='image_recipes/'
     )
     text = models.TextField(
         verbose_name='Описание',
     )
     cooking_time = models.PositiveSmallIntegerField(
-        default=1,
         verbose_name='Время приготовления',
+        null=False,
         validators=[
-            MinValueValidator(1, 'Время не может быть меньше 1-й минуты.')
+            MinValueValidator(1, 'Время не может быть меньше 1 минуты.')
         ]
     )
     pud_date = models.DateTimeField(
@@ -98,10 +100,14 @@ class Recipe(models.Model):
         ordering = ('-pud_date',)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
+
+    def get_absoulute_url(self):
+        return reverse('recipe', args=[self.pk])
 
 
 class IngredientInRecipe(models.Model):
+    """Промежуточная модель ингредиента и количества в рецепте"""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -138,6 +144,7 @@ class IngredientInRecipe(models.Model):
 
 
 class FavoriteRecipe(models.Model):
+    """Модель избранного рецепта"""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -167,6 +174,7 @@ class FavoriteRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Модель список покупок"""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -1,13 +1,9 @@
-from django.core.management import BaseCommand, CommandError
-
+from django.core.management import BaseCommand
 from recipes.models import Tag
-
-SOMETHING_WENT_ERROR_MESSAGE = 'Что-то пошло не так!'
-TAGS_LOADED_MESSAGE = 'Все тэги загружены!'
 
 
 class Command(BaseCommand):
-    help = 'Создаем тэги.'
+    help = 'Создание шаблонных тегов в базе данных.'
 
     def handle(self, *args, **kwargs):
         data = [
@@ -20,6 +16,9 @@ class Command(BaseCommand):
         ]
         try:
             Tag.objects.bulk_create(Tag(**tag) for tag in data)
+        except ValueError:
+            print('Неопределенное значение.')
         except Exception:
-            raise CommandError(SOMETHING_WENT_ERROR_MESSAGE)
-        self.stdout.write(self.style.SUCCESS(TAGS_LOADED_MESSAGE))
+            print('Что-то пошло не так!')
+        else:
+            print('Создание тегов окончено.')
