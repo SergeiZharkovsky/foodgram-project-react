@@ -56,6 +56,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
     """Чтение рецептов"""
+    name = serializers.CharField(source='title')
+    image = Base64ImageField(max_length=None, use_url=True, source='picture')
     tags = TagSerializer(many=True)
     author = CustomUserListSerializer()
     ingredients = serializers.SerializerMethodField()
@@ -65,16 +67,22 @@ class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
+            'id',
             'tags',
             'author',
             'ingredients',
             'is_favorited',
             'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
         )
 
 
 class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
     """Запись рецептов"""
+    name = serializers.CharField(source='title')
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all()
@@ -88,6 +96,9 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
             'tags',
             'ingredients',
             'image',
+            'name',
+            'text',
+            'cooking_time',
         )
         read_only_fields = ('author',)
 
