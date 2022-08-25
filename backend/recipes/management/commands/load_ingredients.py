@@ -23,4 +23,5 @@ class Command(BaseCommand):
                     Ingredient(**data) for data in reader)
         except Exception:
             raise CommandError(SOMETHING_WENT_ERROR_MESSAGE)
-        self.stdout.write(self.style.SUCCESS(INGREDIENTS_LOADED_MESSAGE))
+        else:
+            print(INGREDIENTS_LOADED_MESSAGE)
