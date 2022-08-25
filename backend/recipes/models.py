@@ -77,14 +77,15 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Изображение',
-        upload_to='image_recipes/'
+        blank=True,
+        null=True,
+        upload_to='image_recipes/',
     )
     text = models.TextField(
         verbose_name='Описание',
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        null=False,
         validators=[
             MinValueValidator(1, 'Время не может быть меньше 1 минуты.')
         ]

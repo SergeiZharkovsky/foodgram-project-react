@@ -82,18 +82,7 @@ class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'tags',
-            'author',
-            'ingredients',
-            'is_favorited',
-            'is_in_shopping_cart',
-            'name',
-            'image',
-            'text',
-            'cooking_time',
-        )
+        fields = '__all__'
 
 
 class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
@@ -107,15 +96,7 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-            'ingredients',
-            'tags',
-            'image',
-            'name',
-            'text',
-            'cooking_time',
-        )
+        fields = '__all__'
         read_only_fields = ('author',)
 
     def validate(self, data):
@@ -164,12 +145,11 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        image = validated_data.pop('image')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = super().create(validated_data)
         return self.add_ingredients_and_tags(
-            recipe, ingredients=ingredients, tags=tags, image=image
+            recipe, ingredients=ingredients, tags=tags
         )
 
     def update(self, instance, validated_data):

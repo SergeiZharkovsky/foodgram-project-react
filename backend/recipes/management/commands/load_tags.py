@@ -22,5 +22,4 @@ class Command(BaseCommand):
             Tag.objects.bulk_create(Tag(**tag) for tag in data)
         except Exception:
             raise CommandError(SOMETHING_WENT_ERROR_MESSAGE)
-        else:
-            print(TAGS_LOADED_MESSAGE)
+        self.stdout.write(self.style.SUCCESS(TAGS_LOADED_MESSAGE))
